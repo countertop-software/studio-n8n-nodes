@@ -1,6 +1,6 @@
 {
   "name": "@countertop/n8n-nodes-countertop-studio",
-  "version": "1.0.0-alpha.3",
+  "version": "1.0.0-alpha.4",
   "description": "Official Countertop Studio integration nodes for n8n",
   "main": "dist/index.js",
   "scripts": {
