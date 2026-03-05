@@ -71,6 +71,19 @@ export class CountertopStudioValidateDeal implements INodeType {
 		defaults: {
 			name: 'Countertop Studio - Validate Deal',
 		},
+		codex: {
+			categories: ['Countertop Studio'],
+			subcategories: {
+				'Countertop Studio': ['Deals'],
+			},
+			resources: {
+				primaryDocumentation: [
+					{
+						url: 'https://docs.countertop.app/n8n/deal-create-nodes#validate-deal',
+					},
+				],
+			},
+		},
 		inputs: ['main'],
 		outputs: ['main', 'main'],
 		outputNames: ['Valid', 'Invalid'],

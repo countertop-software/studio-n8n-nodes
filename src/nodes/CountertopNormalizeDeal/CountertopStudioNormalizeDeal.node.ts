@@ -61,6 +61,19 @@ export class CountertopStudioNormalizeDeal implements INodeType {
 		defaults: {
 			name: 'Countertop Studio - Normalize Deal',
 		},
+		codex: {
+			categories: ['Countertop Studio'],
+			subcategories: {
+				'Countertop Studio': ['Deals'],
+			},
+			resources: {
+				primaryDocumentation: [
+					{
+						url: 'https://docs.countertop.app/n8n/deal-create-nodes#normalize-deal',
+					},
+				],
+			},
+		},
 		inputs: ['main'],
 		outputs: ['main'],
 		properties: [

@@ -44,6 +44,19 @@ export class CountertopStudioSendDeal implements INodeType {
 		description: 'Sendet normalisierte Deal-Daten an die API (pro Item 1 Request)',
 		icon: 'file:countertopStudioLogo.svg',
 		defaults: { name: 'Countertop Studio - Send Deal' },
+		codex: {
+			categories: ['Countertop Studio'],
+			subcategories: {
+				'Countertop Studio': ['Deals'],
+			},
+			resources: {
+				primaryDocumentation: [
+					{
+						url: 'https://docs.countertop.app/n8n/deal-create-nodes#send-deal',
+					},
+				],
+			},
+		},
 		inputs: ['main'],
 		outputs: ['main', 'main'],
 		outputNames: ['Sent', 'Failed'],
@@ -180,16 +193,16 @@ export class CountertopStudioSendDeal implements INodeType {
 			const customerIds =
 				Array.isArray(customerIdsRaw)
 					? customerIdsRaw
-							.map((v) => toNullableTrimmedString(v))
-							.filter((v): v is string => !!v)
+						.map((v) => toNullableTrimmedString(v))
+						.filter((v): v is string => !!v)
 					: [];
 
 			const customers =
 				Array.isArray(customersRaw)
 					? customersRaw
-							.filter((c) => isPlainObject(c))
-							.map((c) => c as Record<string, unknown>)
-							.filter((c) => hasAnyValue(c))
+						.filter((c) => isPlainObject(c))
+						.map((c) => c as Record<string, unknown>)
+						.filter((c) => hasAnyValue(c))
 					: [];
 
 			if (customerIds.length > 0) {
@@ -217,24 +230,24 @@ export class CountertopStudioSendDeal implements INodeType {
 
 				const json = keepOriginalFields
 					? {
-							...originalJson,
-							api: {
-								ok: true,
-								requestId,
-								url,
-								requestBody: includeRequestBody ? body : undefined,
-								responseBody: includeResponseBody ? response : undefined,
-							},
-					  }
+						...originalJson,
+						api: {
+							ok: true,
+							requestId,
+							url,
+							requestBody: includeRequestBody ? body : undefined,
+							responseBody: includeResponseBody ? response : undefined,
+						},
+					}
 					: {
-							api: {
-								ok: true,
-								requestId,
-								url,
-								requestBody: includeRequestBody ? body : undefined,
-								responseBody: includeResponseBody ? response : undefined,
-							},
-					  };
+						api: {
+							ok: true,
+							requestId,
+							url,
+							requestBody: includeRequestBody ? body : undefined,
+							responseBody: includeResponseBody ? response : undefined,
+						},
+					};
 
 				sent.push({ json });
 			} catch (err: any) {
@@ -248,32 +261,32 @@ export class CountertopStudioSendDeal implements INodeType {
 
 				const json = keepOriginalFields
 					? {
-							...originalJson,
-							api: {
-								ok: false,
-								requestId,
-								url,
-								requestBody: includeRequestBody ? body : undefined,
-								error: {
-									message: err?.message ?? 'Request failed',
-									statusCode: statusCode ?? null,
-									responseBody: includeResponseBody ? responseBody ?? null : undefined,
-								},
+						...originalJson,
+						api: {
+							ok: false,
+							requestId,
+							url,
+							requestBody: includeRequestBody ? body : undefined,
+							error: {
+								message: err?.message ?? 'Request failed',
+								statusCode: statusCode ?? null,
+								responseBody: includeResponseBody ? responseBody ?? null : undefined,
 							},
-					  }
+						},
+					}
 					: {
-							api: {
-								ok: false,
-								requestId,
-								url,
-								requestBody: includeRequestBody ? body : undefined,
-								error: {
-									message: err?.message ?? 'Request failed',
-									statusCode: statusCode ?? null,
-									responseBody: includeResponseBody ? responseBody ?? null : undefined,
-								},
+						api: {
+							ok: false,
+							requestId,
+							url,
+							requestBody: includeRequestBody ? body : undefined,
+							error: {
+								message: err?.message ?? 'Request failed',
+								statusCode: statusCode ?? null,
+								responseBody: includeResponseBody ? responseBody ?? null : undefined,
 							},
-					  };
+						},
+					};
 
 				failed.push({ json });
 			}
