@@ -60,4 +60,4 @@ jobs:
       # Publish
       - name: Publish to npm (OIDC)
         if: steps.changes.outputs.relevant == 'true'
-        run: npm publish
+        run: npm publish --dry-run
