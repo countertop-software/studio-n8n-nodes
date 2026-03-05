@@ -1,6 +1,6 @@
 {
   "name": "n8n-nodes-countertop-studio",
-  "version": "1.0.0",
+  "version": "1.0.0-alpha.1",
   "description": "",
   "main": "dist/index.js",
   "scripts": {
@@ -27,9 +27,8 @@
   "type": "commonjs",
   "dependencies": {
     "express": "^5.2.1",
-    "n8n-core": "^2.10.1",
-    "n8n-workflow": "^2.10.1",
-    "ssh2": "^1.17.0"
+    "ssh2": "^1.17.0",
+    "n8n-workflow": "^2.10.1"
   },
   "devDependencies": {
     "@types/express": "^5.0.6",
@@ -41,12 +40,18 @@
     "ts-node": "^10.9.2",
     "typescript": "^5.9.3"
   },
+  "engines": {
+    "node": ">=18"
+  },
   "n8n": {
     "n8nNodesApiVersion": 1,
     "nodes": [
       "dist/nodes/CountertopStudioNormalizeDeal/CountertopStudioNormalizeDeal.node.js",
       "dist/nodes/CountertopStudioSendDeal/CountertopStudioSendDeal.node.js",
       "dist/nodes/CountertopStudioValidateDeal/CountertopStudioValidateDeal.node.js"
+    ],
+    "credentials": [
+      "dist/credentials/CountertopStudioApi.credentials.js"
     ]
   }
 }
