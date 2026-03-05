@@ -1,6 +1,6 @@
 {
   "name": "@countertop/n8n-nodes-countertop-studio",
-  "version": "1.0.0-alpha.1",
+  "version": "1.0.0",
   "description": "",
   "main": "dist/index.js",
   "scripts": {
@@ -46,15 +46,15 @@
   "engines": {
     "node": ">=18"
   },
-"n8n": {
-  "n8nNodesApiVersion": 1,
-  "nodes": [
-    "dist/nodes/CountertopSendDeal/CountertopStudioSendDeal.node.js",
-    "dist/nodes/CountertopNormalizeDeal/CountertopStudioNormalizeDeal.node.js",
-    "dist/nodes/CountertopValidateDeal/CountertopStudioValidateDeal.node.js"
-  ],
-  "credentials": [
-    "dist/credentials/CountertopStudioApi.credentials.js"
-  ]
-}
+  "n8n": {
+    "n8nNodesApiVersion": 1,
+    "nodes": [
+      "dist/nodes/CountertopSendDeal/CountertopStudioSendDeal.node.js",
+      "dist/nodes/CountertopNormalizeDeal/CountertopStudioNormalizeDeal.node.js",
+      "dist/nodes/CountertopValidateDeal/CountertopStudioValidateDeal.node.js"
+    ],
+    "credentials": [
+      "dist/credentials/CountertopStudioApi.credentials.js"
+    ]
+  }
 }
