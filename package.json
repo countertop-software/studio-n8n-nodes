@@ -1,5 +1,5 @@
 {
-  "name": "n8n-nodes-countertop-studio",
+  "name": "@countertop/n8n-nodes-countertop-studio",
   "version": "1.0.0-alpha.1",
   "description": "",
   "main": "dist/index.js",
@@ -22,6 +22,9 @@
     "countertop-studio-api",
     "countertop-studio-n8n"
   ],
+  "publishConfig": {
+    "access": "public"
+  },
   "author": "Countertop GmbH",
   "license": "MIT",
   "type": "commonjs",
