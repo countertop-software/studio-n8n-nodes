@@ -1,63 +1,28 @@
-name: Patch & Publish (main)
+name: Publish to npm
 
 on:
   push:
-    branches:
-      - main
+    tags:
+      - 'v*'
 
 permissions:
-  contents: write      # um commit/tag zu pushen
-  id-token: write      # für npm trusted publishing (OIDC)
+  contents: read
+  id-token: write
 
 jobs:
-  bump_and_publish:
+  publish:
     runs-on: ubuntu-latest
 
     steps:
       - uses: actions/checkout@v4
-        with:
-          fetch-depth: 0  # wichtig für tags
 
       - uses: actions/setup-node@v4
         with:
           node-version: 20
-          registry-url: https://registry.npmjs.org
+          registry-url: 'https://registry.npmjs.org'
 
-
-      - name: Detect relevant changes
-        id: changes
-        run: |
-          set -e
-          BEFORE="${{ github.event.before }}"
-          AFTER="${{ github.sha }}"
-          if git diff --name-only "$BEFORE" "$AFTER" | grep -E '^(package\.json|package-lock\.json|src/|nodes/|dist/)' > /dev/null; then
-            echo "relevant=true" >> $GITHUB_OUTPUT
-          else
-            echo "relevant=false" >> $GITHUB_OUTPUT
-          fi
-
-      - name: Stop if no relevant changes
-        if: steps.changes.outputs.relevant != 'true'
-        run: echo "No relevant changes – skipping version bump & publish."
-
-      - name: Install
-        if: steps.changes.outputs.relevant == 'true'
+      - name: Install dependencies
         run: npm ci
 
-      # Version bump + commit + tag
-      - name: Bump patch version
-        if: steps.changes.outputs.relevant == 'true'
-        run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
-
-          # bump patch, erstellt commit + tag (z.B. v1.2.4)
-          npm version patch -m "chore(release): %s [skip ci]"
-
-          # push commit + tags zurück nach main
-          git push --follow-tags
-
-      # Publish
-      - name: Publish to npm (OIDC)
-        if: steps.changes.outputs.relevant == 'true'
+      - name: Publish to npm
         run: npm publish

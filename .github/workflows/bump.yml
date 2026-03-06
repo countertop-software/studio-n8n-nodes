@@ -1,0 +1,60 @@
+name: Bump prerelease version (main)
+
+on:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: write
+
+jobs:
+  bump:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Stop bot loop
+        if: github.actor == 'github-actions[bot]'
+        run: |
+          echo "Triggered by github-actions[bot] - skipping"
+          exit 0
+
+      - name: Detect relevant changes
+        id: changes
+        run: |
+          set -e
+          BEFORE="${{ github.event.before }}"
+          AFTER="${{ github.sha }}"
+          if git diff --name-only "$BEFORE" "$AFTER" | grep -E '^(package\.json|package-lock\.json|src/|nodes/|dist/)' > /dev/null; then
+            echo "relevant=true" >> $GITHUB_OUTPUT
+          else
+            echo "relevant=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Stop if no relevant changes
+        if: steps.changes.outputs.relevant != 'true'
+        run: |
+          echo "No relevant changes - skipping version bump."
+          exit 0
+
+      - uses: actions/setup-node@v4
+        if: steps.changes.outputs.relevant == 'true'
+        with:
+          node-version: 20
+
+      - name: Install dependencies
+        if: steps.changes.outputs.relevant == 'true'
+        run: npm ci
+
+      - name: Bump alpha prerelease version
+        if: steps.changes.outputs.relevant == 'true'
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+          npm version prerelease --preid=alpha -m "chore(release): %s [skip ci]"
+          git push --follow-tags
