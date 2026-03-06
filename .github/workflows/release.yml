@@ -1,0 +1,136 @@
+name: Release and Publish
+
+on:
+  workflow_dispatch:
+    inputs:
+      release_type:
+        description: "Welche Version soll erhöht werden?"
+        required: true
+        default: "prerelease"
+        type: choice
+        options:
+          - prerelease
+          - patch
+          - minor
+          - major
+
+      preid:
+        description: "Prerelease-Label (nur bei prerelease)"
+        required: true
+        default: "alpha"
+        type: choice
+        options:
+          - alpha
+          - beta
+
+permissions:
+  contents: write
+  id-token: write
+
+concurrency:
+  group: release-main
+  cancel-in-progress: false
+
+jobs:
+  bump:
+    name: Bump version, commit and tag
+    runs-on: ubuntu-latest
+    outputs:
+      new_version: ${{ steps.version.outputs.new_version }}
+
+    steps:
+      - name: Checkout main
+        uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Normalize version typo if needed
+        run: |
+          node -e "
+          const fs = require('fs');
+          const pkg = JSON.parse(fs.readFileSync('package.json', 'utf8'));
+          if (pkg.version.includes('-apha.')) {
+            pkg.version = pkg.version.replace('-apha.', '-alpha.');
+            fs.writeFileSync('package.json', JSON.stringify(pkg, null, 2) + '\n');
+            console.log('Fixed version typo to:', pkg.version);
+          } else {
+            console.log('Version is already normalized:', pkg.version);
+          }
+          "
+
+      - name: Bump version
+        id: version
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+          if [ "${{ inputs.release_type }}" = "prerelease" ]; then
+            NEW_VERSION=$(npm version prerelease --preid=${{ inputs.preid }} -m "chore(release): %s [skip ci]")
+          else
+            NEW_VERSION=$(npm version ${{ inputs.release_type }} -m "chore(release): %s [skip ci]")
+          fi
+
+          echo "new_version=${NEW_VERSION#v}" >> "$GITHUB_OUTPUT"
+          echo "Created version: ${NEW_VERSION#v}"
+
+      - name: Push commit and tag to main
+        run: |
+          git push origin main --follow-tags
+
+  publish:
+    name: Publish to npm
+    needs: bump
+    if: ${{ needs.bump.result == 'success' }}
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout latest main
+        uses: actions/checkout@v4
+        with:
+          ref: main
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          registry-url: https://registry.npmjs.org
+
+      - name: Remove always-auth from npmrc
+        run: |
+          sed -i '/always-auth/d' .npmrc 2>/dev/null || true
+          sed -i '/always-auth/d' ~/.npmrc 2>/dev/null || true
+
+      - name: Show version to publish
+        run: |
+          echo "Publishing version: ${{ needs.bump.outputs.new_version }}"
+          node -v
+          npm -v
+          node -p "require('./package.json').version"
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Publish package
+        run: |
+          VERSION="${{ needs.bump.outputs.new_version }}"
+
+          case "$VERSION" in
+            *-alpha.*)
+              npm publish --tag alpha
+              ;;
+            *-beta.*)
+              npm publish --tag beta
+              ;;
+            *)
+              npm publish
+              ;;
+          esac
