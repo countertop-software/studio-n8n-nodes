@@ -126,7 +126,7 @@ export class CountertopStudioSendDeal implements INodeType {
 		const sent: INodeExecutionData[] = [];
 		const failed: INodeExecutionData[] = [];
 
-		const defaultUrl = 'http://n8n_test.test/api/deals';
+		const defaultUrl = 'https://studio.countertop.app/api/v1/integration/deals';
 		const defaultTimeout = 30000;
 
 		const creds = (await this.getCredentials('countertopStudioApi')) as {
@@ -152,6 +152,7 @@ export class CountertopStudioSendDeal implements INodeType {
 			const body: Record<string, unknown> = {
 				name: toNullableTrimmedString(get(originalJson, 'name')),
 				employee_id: toNullableTrimmedString(get(originalJson, 'employee_id')),
+				deal_origin: toNullableTrimmedString(get(originalJson, 'deal_origin')),
 				note: toNullableTrimmedString(get(originalJson, 'note')),
 			};
 
@@ -166,6 +167,7 @@ export class CountertopStudioSendDeal implements INodeType {
 			const RESERVED_KEYS = new Set([
 				'name',
 				'employee_id',
+				'deal_origin',
 				'note',
 				'volume',
 				'customer_ids',

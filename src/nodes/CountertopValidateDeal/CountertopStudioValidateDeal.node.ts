@@ -44,6 +44,11 @@ function isDateYYYYMMDD(value: unknown): boolean {
 	return /^\d{4}-\d{2}-\d{2}$/.test(s);
 }
 
+function isNullableStringWithMaxLength(value: unknown, maxLength: number): boolean {
+	if (value === null || value === undefined) return true;
+	return typeof value === 'string' && value.length <= maxLength;
+}
+
 function getNested(obj: unknown, path: string): unknown {
 	if (!obj || typeof obj !== 'object') return undefined;
 
@@ -190,6 +195,15 @@ export class CountertopStudioValidateDeal implements INodeType {
 							message: 'Employee ID must be a valid UUID.',
 						});
 					}
+				}
+
+				const dealOrigin = getNested(originalJson, 'deal_origin');
+				if (!isNullableStringWithMaxLength(dealOrigin, 255)) {
+					errors.push({
+						fieldPath: 'deal_origin',
+						rule: 'string_max_length',
+						message: 'deal_origin must be null or a string with a maximum length of 255 characters.',
+					});
 				}
 			}
 

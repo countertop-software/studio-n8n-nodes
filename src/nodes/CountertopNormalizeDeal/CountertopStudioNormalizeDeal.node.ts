@@ -22,6 +22,7 @@ function hasAnyValue(obj: Record<string, unknown>): boolean {
 const DEAL_ADDITIONAL_OPTIONS: Array<{ name: string; value: string }> = [
 	{ name: 'Volume (volume)', value: 'volume' },
 	{ name: 'Employee ID (employee_id)', value: 'employee_id' },
+	{ name: 'Deal  (deal_origin)', value: 'deal_origin' },
 	{ name: 'Note (note)', value: 'note' },
 ];
 
@@ -45,7 +46,7 @@ const CUSTOMER_ADDITIONAL_OPTIONS: Array<{ name: string; value: string }> = [
 	{ name: 'State/Province (state)', value: 'state' },
 	{ name: 'Country (country)', value: 'country' },
 
-	{ name: 'Lead Origin (lead_origin)', value: 'lead_origin' },
+	{ name: 'Customer Origin (contact_origin)', value: 'contact_origin' },
 	{ name: 'Birthday (birthday)', value: 'birthday' },
 	{ name: 'Note (note)', value: 'note' },
 ];
