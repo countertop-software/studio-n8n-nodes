@@ -13,7 +13,6 @@ on:
           - patch
           - minor
           - major
-
       preid:
         description: "Prerelease-Label (nur bei prerelease)"
         required: true
@@ -23,49 +22,29 @@ on:
           - alpha
           - beta
 
-permissions:
-  contents: write
-  id-token: write
-
 concurrency:
   group: release-main
   cancel-in-progress: false
 
 jobs:
   bump:
-    name: Bump version, commit and tag
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
     outputs:
       new_version: ${{ steps.version.outputs.new_version }}
 
     steps:
-      - name: Checkout main
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
         with:
           ref: main
           fetch-depth: 0
 
-      - name: Setup Node
-        uses: actions/setup-node@v4
+      - uses: actions/setup-node@v4
         with:
           node-version: 24
 
-      - name: Install dependencies
-        run: npm ci
-
-      - name: Normalize version typo if needed
-        run: |
-          node -e "
-          const fs = require('fs');
-          const pkg = JSON.parse(fs.readFileSync('package.json', 'utf8'));
-          if (pkg.version.includes('-apha.')) {
-            pkg.version = pkg.version.replace('-apha.', '-alpha.');
-            fs.writeFileSync('package.json', JSON.stringify(pkg, null, 2) + '\n');
-            console.log('Fixed version typo to:', pkg.version);
-          } else {
-            console.log('Version is already normalized:', pkg.version);
-          }
-          "
+      - run: npm ci
 
       - name: Bump version
         id: version
@@ -80,44 +59,27 @@ jobs:
           fi
 
           echo "new_version=${NEW_VERSION#v}" >> "$GITHUB_OUTPUT"
-          echo "Created version: ${NEW_VERSION#v}"
 
-      - name: Push commit and tag to main
-        run: |
-          git push origin main --follow-tags
+      - run: git push origin main --follow-tags
 
   publish:
-    name: Publish to npm
     needs: bump
-    if: ${{ needs.bump.result == 'success' }}
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
 
     steps:
-      - name: Checkout latest main
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
         with:
           ref: main
 
-      - name: Setup Node
-        uses: actions/setup-node@v4
+      - uses: actions/setup-node@v4
         with:
           node-version: 24
-          registry-url: https://registry.npmjs.org
+          registry-url: "https://registry.npmjs.org"
 
-      - name: Remove always-auth from npmrc
-        run: |
-          sed -i '/always-auth/d' .npmrc 2>/dev/null || true
-          sed -i '/always-auth/d' ~/.npmrc 2>/dev/null || true
-
-      - name: Show version to publish
-        run: |
-          echo "Publishing version: ${{ needs.bump.outputs.new_version }}"
-          node -v
-          npm -v
-          node -p "require('./package.json').version"
-
-      - name: Install dependencies
-        run: npm ci
+      - run: npm ci
 
       - name: Publish package
         run: |
@@ -125,12 +87,12 @@ jobs:
 
           case "$VERSION" in
             *-alpha.*)
-              npm publish --tag alpha
+              npm publish --access public --tag alpha
               ;;
             *-beta.*)
-              npm publish --tag beta
+              npm publish --access public --tag beta
               ;;
             *)
-              npm publish
+              npm publish --access public
               ;;
           esac
