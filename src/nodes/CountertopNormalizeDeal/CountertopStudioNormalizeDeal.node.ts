@@ -46,7 +46,7 @@ const CUSTOMER_ADDITIONAL_OPTIONS: Array<{ name: string; value: string }> = [
 	{ name: 'State/Province (state)', value: 'state' },
 	{ name: 'Country (country)', value: 'country' },
 
-	{ name: 'Customer Origin (contact_origin)', value: 'contact_origin' },
+	{ name: 'Contact Origin (contact_origin)', value: 'contact_origin' },
 	{ name: 'Birthday (birthday)', value: 'birthday' },
 	{ name: 'Note (note)', value: 'note' },
 ];
